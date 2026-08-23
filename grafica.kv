@@ -1,0 +1,366 @@
+<Screen>:
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.12, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<ModernButton@Button>:
+    background_color: 0, 0, 0, 0
+    background_normal: ''
+    color_normal: 0.2, 0.2, 0.25, 1
+    color_down: 0.3, 0.3, 0.35, 1
+    color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: self.color_down if self.state == 'down' else self.color_normal
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [15]
+
+<ModernSpinnerOption@SpinnerOption>:
+    background_normal: ''
+    background_color: 0.18, 0.18, 0.22, 1
+    color: 0.9, 0.9, 0.9, 1
+    font_size: 15
+
+<ModernSpinner@Spinner>:
+    background_color: 0, 0, 0, 0
+    background_normal: ''
+    color: 1, 1, 1, 1
+    option_cls: 'ModernSpinnerOption'
+    canvas.before:
+        Color:
+            rgba: 0.2, 0.2, 0.25, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10]
+
+<ModernToggle@ToggleButton>:
+    background_color: 0, 0, 0, 0
+    background_normal: ''
+    background_down: ''
+    active: self.state == 'down' 
+    color: 1, 1, 1, 1
+    bold: True
+    canvas.before:
+        Color:
+            rgba: (0.5, 0.2, 0.8, 1) if self.state == 'down' else (0.2, 0.2, 0.25, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10]
+
+ScreenManager:
+    MenuScreen:
+    TrainingScreen:
+
+<MenuScreen>:
+    name: 'menu'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 30
+        spacing: 12
+
+        Label:
+            text: 'Trachtenberg'
+            font_size: 34
+            bold: True
+            size_hint_y: 0.15
+            color: 0.2, 0.8, 0.9, 1
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.13
+            spacing: 5
+            Label:
+                text: 'Operation'
+                size_hint_y: 0.3
+                text_size: self.size
+                halign: 'left'
+                color: 0.6, 0.6, 0.6, 1
+                bold: True
+            BoxLayout:
+                spacing: 10
+                size_hint_y: 0.7
+                ModernSpinner:
+                    id: op_spinner
+                    text: 'Rapid Rules'
+                    values: ['Rapid Rules', 'NxN Multiplication', 'Addition', 'Division', 'Square', 'Square Root']
+                    size_hint_x: 0.75
+                ModernToggle:
+                    id: chk_rand_op
+                    text: 'RND'
+                    size_hint_x: 0.25
+
+        BoxLayout:
+            id: rule_section
+            orientation: 'vertical'
+            size_hint_y: 0.13
+            spacing: 5
+            disabled: op_spinner.text != 'Rapid Rules'
+            opacity: 0.3 if self.disabled else 1
+            
+            Label:
+                text: 'Rapid Rule'
+                size_hint_y: 0.3
+                text_size: self.size
+                halign: 'left'
+                color: 0.6, 0.6, 0.6, 1
+                bold: True
+            BoxLayout:
+                spacing: 10
+                size_hint_y: 0.7
+                ModernSpinner:
+                    id: rule_spinner
+                    text: 'Multiply by 11'
+                    values: ['Multiply by 2', 'Multiply by 3', 'Multiply by 4', 'Multiply by 5', 'Multiply by 6', 'Multiply by 7', 'Multiply by 8', 'Multiply by 9', 'Multiply by 11', 'Multiply by 12']
+                    size_hint_x: 0.75
+                ModernToggle:
+                    id: chk_rand_rule
+                    text: 'RND'
+                    size_hint_x: 0.25
+
+        BoxLayout:
+            id: rows_section
+            orientation: 'vertical'
+            size_hint_y: 0.13
+            spacing: 5
+            disabled: op_spinner.text != 'Addition'
+            opacity: 0.3 if self.disabled else 1
+            
+            Label:
+                text: 'Addition Rows (e.g., 4 or 3-6)'
+                size_hint_y: 0.3
+                text_size: self.size
+                halign: 'left'
+                color: 0.6, 0.6, 0.6, 1
+                bold: True
+            BoxLayout:
+                spacing: 10
+                size_hint_y: 0.7
+                TextInput:
+                    id: rows_input
+                    text: '4'
+                    multiline: False
+                    halign: 'center'
+                    font_size: 18
+                    background_normal: ''
+                    background_color: 0.2, 0.2, 0.25, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 1, 1, 1
+                    size_hint_x: 0.75
+                ModernToggle:
+                    id: chk_rand_rows
+                    text: 'RND'
+                    size_hint_x: 0.25
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.13
+            spacing: 5
+            Label:
+                text: 'Digits (e.g., 3 or 3-6)'
+                size_hint_y: 0.3
+                text_size: self.size
+                halign: 'left'
+                color: 0.6, 0.6, 0.6, 1
+                bold: True
+            BoxLayout:
+                spacing: 10
+                size_hint_y: 0.7
+                TextInput:
+                    id: digit_input
+                    text: '3'
+                    multiline: False
+                    halign: 'center'
+                    font_size: 18
+                    background_normal: ''
+                    background_color: 0.2, 0.2, 0.25, 1
+                    foreground_color: 1, 1, 1, 1
+                    cursor_color: 1, 1, 1, 1
+                    size_hint_x: 0.75
+                ModernToggle:
+                    id: chk_rand_digits
+                    text: 'RND'
+                    size_hint_x: 0.25
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.13
+            spacing: 5
+            Label:
+                text: 'Keypad Direction'
+                size_hint_y: 0.3
+                text_size: self.size
+                halign: 'left'
+                color: 0.6, 0.6, 0.6, 1
+                bold: True
+            ModernSpinner:
+                id: direction_spinner
+                text: 'Right to Left'
+                values: ['Right to Left', 'Left to Right']
+                size_hint_y: 0.7
+
+        Widget:
+            size_hint_y: 0.05
+
+        ModernButton:
+            text: 'START TRAINING'
+            size_hint_y: 0.15
+            font_size: 16
+            bold: True
+            color_normal: 0.1, 0.6, 0.3, 1
+            color_down: 0.05, 0.45, 0.2, 1
+            on_release: app.start_training()
+
+<TrainingScreen>:
+    name: 'training'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 12
+
+        Label:
+            id: title_label
+            text: 'Operation'
+            size_hint_y: 0.05
+            color: 0.5, 0.5, 0.5, 1
+            bold: True
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.35
+            canvas.before:
+                Color:
+                    rgba: 0.15, 0.15, 0.18, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [20]
+            padding: 10
+            
+            Label:
+                id: problem_label
+                text: '0'
+                font_size: 32
+                bold: True
+                color: 1, 1, 1, 1
+                text_size: self.width, None
+                halign: 'center'
+                valign: 'middle'
+
+            Label:
+                id: answer_label
+                text: ''
+                font_size: 42
+                bold: True
+                color: 0.2, 0.8, 0.4, 1
+                text_size: self.width, None
+                halign: 'center'
+
+        Label:
+            id: feedback_label
+            text: 'Type the answer and press ENTER'
+            font_size: 14
+            color: 0.7, 0.7, 0.7, 1
+            size_hint_y: 0.05
+
+        # Tastierino 3x4 aggiornato
+        GridLayout:
+            cols: 3
+            spacing: 10
+            size_hint_y: 0.35
+            
+            ModernButton:
+                text: '7'
+                font_size: 26
+                on_release: app.type_digit('7')
+            ModernButton:
+                text: '8'
+                font_size: 26
+                on_release: app.type_digit('8')
+            ModernButton:
+                text: '9'
+                font_size: 26
+                on_release: app.type_digit('9')
+            ModernButton:
+                text: '4'
+                font_size: 26
+                on_release: app.type_digit('4')
+            ModernButton:
+                text: '5'
+                font_size: 26
+                on_release: app.type_digit('5')
+            ModernButton:
+                text: '6'
+                font_size: 26
+                on_release: app.type_digit('6')
+            ModernButton:
+                text: '1'
+                font_size: 26
+                on_release: app.type_digit('1')
+            ModernButton:
+                text: '2'
+                font_size: 26
+                on_release: app.type_digit('2')
+            ModernButton:
+                text: '3'
+                font_size: 26
+                on_release: app.type_digit('3')
+            
+            # Tasto R dinamico (visibile solo se serve)
+            ModernButton:
+                id: btn_resto
+                text: 'R'
+                font_size: 22
+                bold: True
+                disabled: not self.opacity # Se è invisibile, si disattiva
+                opacity: 0 # Di default nascosto, lo attiva il main.py
+                color_normal: 0.6, 0.3, 0.8, 1
+                color_down: 0.7, 0.4, 0.9, 1
+                on_release: app.toggle_resto()
+                
+            ModernButton:
+                text: '0'
+                font_size: 26
+                on_release: app.type_digit('0')
+            ModernButton:
+                text: 'DEL'
+                font_size: 18
+                bold: True
+                color_normal: 0.8, 0.3, 0.3, 1 
+                color_down: 0.9, 0.4, 0.4, 1
+                on_release: app.delete_digit()
+                
+        # Pulsante ENTER isolato e largo
+        ModernButton:
+            text: 'ENTER'
+            size_hint_y: 0.1
+            font_size: 18
+            bold: True
+            color_normal: 0.1, 0.6, 0.3, 1
+            color_down: 0.05, 0.45, 0.2, 1
+            on_release: app.check_answer()
+
+        BoxLayout:
+            spacing: 15
+            size_hint_y: 0.1
+            ModernButton:
+                text: 'MENU'
+                font_size: 16
+                bold: True
+                color_normal: 0.4, 0.4, 0.45, 1
+                color_down: 0.5, 0.5, 0.55, 1
+                on_release: app.root.current = 'menu'
+            ModernButton:
+                id: next_btn
+                text: 'NEW'
+                font_size: 16
+                bold: True
+                color_normal: 0.2, 0.5, 0.8, 1
+                color_down: 0.3, 0.6, 0.9, 1
+                on_release: app.next_problem()
