@@ -1,0 +1,28 @@
+[app]
+
+# (str) Title of your application
+title = Trachtenberg App
+
+# (str) Package name
+package.name = trachtenbergapp
+
+# (str) Package domain (needed for android packaging)
+package.domain = org.trachtenberg
+
+# (list) Source files to include (let it include python and kv files)
+source.include_exts = py,png,jpg,kv,atlas
+
+# (list) Application requirements
+# comma separated e.g. requirements = python3,kivy
+requirements = python3,kivy,pillow
+
+# (str) Supported orientations
+orientation = portrait
+
+# (list) Permissions
+#android.permissions = INTERNET
+
+[buildozer]
+
+# (int) Log level (0 = error, 1 = info, 2 = debug (withcommand output))
+log_level = 2
