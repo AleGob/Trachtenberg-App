@@ -29,7 +29,6 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install cython
-        # INSTALLIAMO LA VERSIONE MASTER AGGIORNATA (Risolve il bug di sdkmanager!)
         python3 -m pip install https://github.com/kivy/buildozer/archive/master.zip
 
     - name: Generate buildozer.spec and Build
@@ -42,7 +41,9 @@ jobs:
         title = Trachtenberg App
         package.name = trachtenbergapp
         package.domain = org.trachtenberg
+        source.dir = .
         source.include_exts = py,png,jpg,kv,atlas
+        version = 0.1
         requirements = python3,kivy,pillow
         orientation = portrait
         fullscreen = 0
