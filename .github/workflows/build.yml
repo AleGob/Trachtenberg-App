@@ -25,22 +25,39 @@ jobs:
             libsdl2-mixer-dev libsdl2-ttf-dev libffi-dev libssl-dev \
             build-essential ccache libltdl-dev
 
-    - name: Install Buildozer and Cython
+    - name: Install latest Buildozer & Cython
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install cython
-        python3 -m pip install buildozer
+        # INSTALLIAMO LA VERSIONE MASTER AGGIORNATA (Risolve il bug di sdkmanager!)
+        python3 -m pip install https://github.com/kivy/buildozer/archive/master.zip
 
-    - name: Build with Buildozer
+    - name: Generate buildozer.spec and Build
       run: |
         export PATH=$HOME/.local/bin:$PATH
         
-        # Crea la cartella delle licenze Android in anticipo per evitare blocchi
+        # CREAZIONE FORZATA DEL FILE DI CONFIGURAZIONE
+        cat << 'EOF' > buildozer.spec
+        [app]
+        title = Trachtenberg App
+        package.name = trachtenbergapp
+        package.domain = org.trachtenberg
+        source.include_exts = py,png,jpg,kv,atlas
+        requirements = python3,kivy,pillow
+        orientation = portrait
+        fullscreen = 0
+        
+        [buildozer]
+        log_level = 2
+        warn_on_root = 1
+        EOF
+
+        # ACCETTAZIONE LICENZE ANDROID
         mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
         echo -e "\n8933bab16c544281ef3954d762f2e0f49cf5368a" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
         echo -e "\n24333f8a43b681623c28dd16896734778793b56d" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
 
-        # Avvia la compilazione usando il file buildozer.spec fisso nel repository
+        # COMPILAZIONE
         buildozer -v android debug
 
     - name: Upload APK Artifact
