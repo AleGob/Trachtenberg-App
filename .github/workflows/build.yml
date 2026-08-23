@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # Fissiamo una versione stabile per evitare i bug di "ubuntu-latest"
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v4
@@ -28,29 +28,13 @@ jobs:
     - name: Install Buildozer & Cython
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install cython
-        python3 -m pip install buildozer
-
-    - name: Fix Android SDK & Accept Licenses (The Magic Fix)
-      run: |
-        # Scarichiamo l'SDK manualmente
-        mkdir -p ~/.buildozer/android/platform/android-sdk
-        cd ~/.buildozer/android/platform/android-sdk
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip
-        unzip -q commandlinetools-linux-6514223_latest.zip
-        
-        # Rinominiamo la cartella per aggirare il bug di Buildozer
-        rm -rf tools
-        mv cmdline-tools tools
-        
-        # Accettiamo TUTTE le licenze di Android forzando i "yes"
-        yes | ./tools/bin/sdkmanager --licenses
+        python3 -m pip install cython buildozer
 
     - name: Generate buildozer.spec and Build
       run: |
         export PATH=$HOME/.local/bin:$PATH
         
-        # Creiamo il file perfetto
+        # Creazione pulita del file di configurazione
         cat << 'EOF' > buildozer.spec
         [app]
         title = Trachtenberg App
@@ -62,14 +46,21 @@ jobs:
         requirements = python3,kivy,pillow
         orientation = portrait
         fullscreen = 0
+        
+        # LA MAGIA: fa accettare le licenze in automatico a Buildozer
         android.accept_sdk_license = True
+        
+        # Fissiamo API stabili per evitare i Build-Tools buggati
+        android.api = 33
+        android.min_api = 21
+        android.build_tools_version = 33.0.2
         
         [buildozer]
         log_level = 2
         warn_on_root = 1
         EOF
 
-        # Avviamo la compilazione (ora troverà la cartella 'tools' e non crasherà)
+        # Lasciamo fare tutto a Buildozer!
         buildozer -v android debug
 
     - name: Upload APK Artifact
