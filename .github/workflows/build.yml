@@ -43,8 +43,8 @@ jobs:
         source.include_exts = py,png,jpg,kv,atlas
         version = 0.1
         
-        # IL FIX SALVAVITA: Blocchiamo Python e Kivy alle versioni stabili!
-        requirements = python3==3.11.8,kivy==2.3.0,pillow
+        # IL FIX: Allineiamo Python e HostPython alla stessa identica versione stabile!
+        requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0,pillow
         
         orientation = portrait
         fullscreen = 0
