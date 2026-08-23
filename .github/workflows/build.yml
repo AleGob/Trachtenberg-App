@@ -34,27 +34,13 @@ jobs:
     - name: Build with Buildozer
       run: |
         export PATH=$HOME/.local/bin:$PATH
-        rm -f buildozer.spec
-        buildozer init
         
-        # Configura i parametri di base
-        sed -i 's/# title = My Application/title = Trachtenberg App/' buildozer.spec
-        sed -i 's/# package.name = myapp/package.name = trachtenbergapp/' buildozer.spec
-        sed -i 's/# package.domain = org.example/package.domain = org.trachtenberg/' buildozer.spec
-        sed -i 's/# requirements = python3,kivy/requirements = python3,kivy,pillow/' buildozer.spec
-        sed -i 's/# orientation = portrait/orientation = portrait/' buildozer.spec
-        
-        # Configura API e build tools stabili
-        sed -i 's/# android.api = 31/android.api = 33/' buildozer.spec
-        sed -i 's/# android.min_api = 21/android.min_api = 21/' buildozer.spec
-        echo "android.build_tools_version = 33.0.2" >> buildozer.spec
-
-        # Esegue prima un comando per accettare le licenze dell'SDK Android in automatico
+        # Crea la cartella delle licenze Android in anticipo per evitare blocchi
         mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
         echo -e "\n8933bab16c544281ef3954d762f2e0f49cf5368a" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
         echo -e "\n24333f8a43b681623c28dd16896734778793b56d" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
 
-        # Avvia la compilazione
+        # Avvia la compilazione usando il file buildozer.spec fisso nel repository
         buildozer -v android debug
 
     - name: Upload APK Artifact
