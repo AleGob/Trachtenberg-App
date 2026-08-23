@@ -33,11 +33,19 @@ jobs:
 
     - name: Build with Buildozer
       run: |
-        # Forza l'inclusione dei binari nel PATH di Linux
         export PATH=$HOME/.local/bin:$PATH
-        # Stampa la cartella corrente per sicurezza e avvia buildozer
-        pwd
-        ls -la
+        # Rimuove il vecchio spec e lo rigenera pulito da zero
+        rm -f buildozer.spec
+        buildozer init
+        
+        # Sostituisce i parametri di default con quelli della nostra app nel file appena generato
+        sed -i 's/# title = My Application/title = Trachtenberg App/' buildozer.spec
+        sed -i 's/# package.name = myapp/package.name = trachtenbergapp/' buildozer.spec
+        sed -i 's/# package.domain = org.example/package.domain = org.trachtenberg/' buildozer.spec
+        sed -i 's/# requirements = python3,kivy/requirements = python3,kivy,pillow/' buildozer.spec
+        sed -i 's/# orientation = portrait/orientation = portrait/' buildozer.spec
+
+        # Avvia la compilazione
         buildozer -v android debug
 
     - name: Upload APK Artifact
