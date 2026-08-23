@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # Fissiamo una versione stabile per evitare i bug di "ubuntu-latest"
 
     steps:
     - uses: actions/checkout@v4
@@ -25,17 +25,32 @@ jobs:
             libsdl2-mixer-dev libsdl2-ttf-dev libffi-dev libssl-dev \
             build-essential ccache libltdl-dev
 
-    - name: Install latest Buildozer & Cython
+    - name: Install Buildozer & Cython
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install cython
-        python3 -m pip install https://github.com/kivy/buildozer/archive/master.zip
+        python3 -m pip install buildozer
+
+    - name: Fix Android SDK & Accept Licenses (The Magic Fix)
+      run: |
+        # Scarichiamo l'SDK manualmente
+        mkdir -p ~/.buildozer/android/platform/android-sdk
+        cd ~/.buildozer/android/platform/android-sdk
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip
+        unzip -q commandlinetools-linux-6514223_latest.zip
+        
+        # Rinominiamo la cartella per aggirare il bug di Buildozer
+        rm -rf tools
+        mv cmdline-tools tools
+        
+        # Accettiamo TUTTE le licenze di Android forzando i "yes"
+        yes | ./tools/bin/sdkmanager --licenses
 
     - name: Generate buildozer.spec and Build
       run: |
         export PATH=$HOME/.local/bin:$PATH
         
-        # CREAZIONE FORZATA DEL FILE DI CONFIGURAZIONE
+        # Creiamo il file perfetto
         cat << 'EOF' > buildozer.spec
         [app]
         title = Trachtenberg App
@@ -47,18 +62,14 @@ jobs:
         requirements = python3,kivy,pillow
         orientation = portrait
         fullscreen = 0
+        android.accept_sdk_license = True
         
         [buildozer]
         log_level = 2
         warn_on_root = 1
         EOF
 
-        # ACCETTAZIONE LICENZE ANDROID
-        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-        echo -e "\n8933bab16c544281ef3954d762f2e0f49cf5368a" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-        echo -e "\n24333f8a43b681623c28dd16896734778793b56d" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-
-        # COMPILAZIONE
+        # Avviamo la compilazione (ora troverà la cartella 'tools' e non crasherà)
         buildozer -v android debug
 
     - name: Upload APK Artifact
