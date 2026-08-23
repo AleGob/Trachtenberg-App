@@ -34,7 +34,6 @@ jobs:
       run: |
         export PATH=$HOME/.local/bin:$PATH
         
-        # Creazione pulita del file di configurazione
         cat << 'EOF' > buildozer.spec
         [app]
         title = Trachtenberg App
@@ -43,14 +42,13 @@ jobs:
         source.dir = .
         source.include_exts = py,png,jpg,kv,atlas
         version = 0.1
-        requirements = python3,kivy,pillow
+        
+        # IL FIX SALVAVITA: Blocchiamo Python e Kivy alle versioni stabili!
+        requirements = python3==3.11.8,kivy==2.3.0,pillow
+        
         orientation = portrait
         fullscreen = 0
-        
-        # LA MAGIA: fa accettare le licenze in automatico a Buildozer
         android.accept_sdk_license = True
-        
-        # Fissiamo API stabili per evitare i Build-Tools buggati
         android.api = 33
         android.min_api = 21
         android.build_tools_version = 33.0.2
@@ -60,7 +58,7 @@ jobs:
         warn_on_root = 1
         EOF
 
-        # Lasciamo fare tutto a Buildozer!
+        # Avvia la compilazione
         buildozer -v android debug
 
     - name: Upload APK Artifact
