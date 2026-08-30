@@ -28,7 +28,7 @@ jobs:
     - name: Install Buildozer & Cython
       run: |
         python3 -m pip install --upgrade pip
-        # Usiamo il Cython "d'oro" perfetto per Kivy 2.3.0
+        # Usiamo il Cython stabile perfetto per Kivy
         python3 -m pip install "Cython==0.29.33" buildozer
 
     - name: Generate buildozer.spec
@@ -42,7 +42,8 @@ jobs:
         source.include_exts = py,png,jpg,kv,atlas
         version = 0.1
         
-        requirements = python3,kivy==2.3.0,pillow
+        # IL FIX MANCANTE: Blocchiamo Python alla versione 3.11.8 stabile!
+        requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0,pillow
         
         orientation = portrait
         fullscreen = 0
@@ -50,7 +51,7 @@ jobs:
         android.api = 33
         android.min_api = 21
         
-        # IL FIX FINALE: Usiamo l'NDK 25b per evitare il compilatore rotto di Google
+        # Usiamo l'NDK 25b per evitare i bug del nuovo compilatore di Google
         android.ndk = 25b
         
         [buildozer]
