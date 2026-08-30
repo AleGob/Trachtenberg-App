@@ -14,7 +14,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11' # Usiamo una versione moderna e stabile
+        python-version: '3.11'
 
     - name: Install system dependencies
       run: |
@@ -28,13 +28,15 @@ jobs:
     - name: Install Buildozer & Cython
       run: |
         python3 -m pip install --upgrade pip
-        # Torniamo alle versioni stabili ufficiali, senza rami sperimentali!
         python3 -m pip install "cython<3.0.0" buildozer
+
+    - name: Bypass GNU Savannah 502 Error
+      run: |
+        mkdir -p ~/.buildozer/android/packages/freetype
+        wget -O ~/.buildozer/android/packages/freetype/freetype-2.14.1.tar.gz https://downloads.sourceforge.net/project/freetype/freetype2/2.14.1/freetype-2.14.1.tar.gz
 
     - name: Setup Android SDK Path
       run: |
-        # I server GitHub hanno già l'SDK perfetto pre-installato.
-        # Creiamo solo un collegamento simbolico per aiutare Buildozer a trovare gli strumenti.
         sudo ln -s $ANDROID_HOME/cmdline-tools/latest $ANDROID_HOME/tools
 
     - name: Generate buildozer.spec and Build
@@ -54,8 +56,6 @@ jobs:
         
         orientation = portrait
         fullscreen = 0
-        
-        # Diciamo a Buildozer di usare l'SDK di sistema invece di scaricarne uno rotto
         android.sdk_path = /usr/local/lib/android/sdk
         android.accept_sdk_license = True
         android.api = 33
@@ -66,7 +66,6 @@ jobs:
         warn_on_root = 1
         EOF
 
-        # Via alla compilazione pulita!
         buildozer -v android debug
 
     - name: Upload APK Artifact
