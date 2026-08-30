@@ -28,7 +28,6 @@ jobs:
     - name: Install Buildozer & Cython
       run: |
         python3 -m pip install --upgrade pip
-        # Usiamo il Cython stabile perfetto per Kivy
         python3 -m pip install "Cython==0.29.33" buildozer
 
     - name: Generate buildozer.spec
@@ -42,7 +41,6 @@ jobs:
         source.include_exts = py,png,jpg,kv,atlas
         version = 0.1
         
-        # IL FIX MANCANTE: Blocchiamo Python alla versione 3.11.8 stabile!
         requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0,pillow
         
         orientation = portrait
@@ -50,8 +48,6 @@ jobs:
         android.accept_sdk_license = True
         android.api = 33
         android.min_api = 21
-        
-        # Usiamo l'NDK 25b per evitare i bug del nuovo compilatore di Google
         android.ndk = 25b
         
         [buildozer]
@@ -70,6 +66,11 @@ jobs:
     - name: Build with Buildozer
       run: |
         export PATH=$HOME/.local/bin:$PATH
+        
+        # IL FIX: Costringiamo l'intero sistema a non installare l'ultima versione buggata di Pip
+        echo "pip<24.0" > $HOME/pip-constraints.txt
+        export PIP_CONSTRAINT=$HOME/pip-constraints.txt
+        
         buildozer -v android debug
 
     - name: Upload APK Artifact
