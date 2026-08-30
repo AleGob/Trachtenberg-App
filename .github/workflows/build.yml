@@ -16,7 +16,7 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -30,19 +30,8 @@ jobs:
         python3 -m pip install --upgrade pip
         python3 -m pip install "cython<3.0.0" buildozer
 
-    - name: Bypass GNU Savannah 502 Error
+    - name: Generate buildozer.spec
       run: |
-        mkdir -p ~/.buildozer/android/packages/freetype
-        wget -O ~/.buildozer/android/packages/freetype/freetype-2.14.1.tar.gz https://downloads.sourceforge.net/project/freetype/freetype2/2.14.1/freetype-2.14.1.tar.gz
-
-    - name: Setup Android SDK Path
-      run: |
-        sudo ln -s $ANDROID_HOME/cmdline-tools/latest $ANDROID_HOME/tools
-
-    - name: Generate buildozer.spec and Build
-      run: |
-        export PATH=$HOME/.local/bin:$PATH
-        
         cat << 'EOF' > buildozer.spec
         [app]
         title = Trachtenberg App
@@ -56,7 +45,6 @@ jobs:
         
         orientation = portrait
         fullscreen = 0
-        android.sdk_path = /usr/local/lib/android/sdk
         android.accept_sdk_license = True
         android.api = 33
         android.min_api = 21
@@ -66,6 +54,22 @@ jobs:
         warn_on_root = 1
         EOF
 
+    - name: THE NUKE (Bypass GNU Server Crash)
+      run: |
+        export PATH=$HOME/.local/bin:$PATH
+        # 1. Avviamo buildozer a vuoto per forzargli a creare la cartella sorgente
+        buildozer android p4a -- --help || true
+        
+        # 2. Hackeriamo il codice di Buildozer rimpiazzando l'URL rotto con uno stabile (SourceForge)
+        find .buildozer/android/platform/python-for-android -type f -name "__init__.py" -exec sed -i 's|https://download.savannah.gnu.org/releases/freetype/freetype-{version}.tar.gz|https://downloads.sourceforge.net/project/freetype/freetype2/{version}/freetype-{version}.tar.gz|g' {} +
+        
+        # 3. Scarichiamo fisicamente il file mettendolo ESATTAMENTE nella cartella di build temporanea
+        mkdir -p .buildozer/android/platform/build-arm64-v8a_armeabi-v7a/packages/freetype
+        wget -qO .buildozer/android/platform/build-arm64-v8a_armeabi-v7a/packages/freetype/freetype-2.14.1.tar.gz https://downloads.sourceforge.net/project/freetype/freetype2/2.14.1/freetype-2.14.1.tar.gz
+
+    - name: Build with Buildozer
+      run: |
+        export PATH=$HOME/.local/bin:$PATH
         buildozer -v android debug
 
     - name: Upload APK Artifact
