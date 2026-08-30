@@ -14,7 +14,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11' # Usiamo una versione moderna e stabile
 
     - name: Install system dependencies
       run: |
@@ -28,14 +28,14 @@ jobs:
     - name: Install Buildozer & Cython
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install cython buildozer
+        # Torniamo alle versioni stabili ufficiali, senza rami sperimentali!
+        python3 -m pip install "cython<3.0.0" buildozer
 
-    - name: Bypass GNU Savannah 502 Error (Pre-download freetype)
+    - name: Setup Android SDK Path
       run: |
-        # Creiamo la cartella cache di Buildozer in anticipo
-        mkdir -p ~/.buildozer/android/packages/freetype
-        # Scarichiamo il file esatto da SourceForge (server stabile) invece che da GNU
-        wget -O ~/.buildozer/android/packages/freetype/freetype-2.14.1.tar.gz https://downloads.sourceforge.net/project/freetype/freetype2/2.14.1/freetype-2.14.1.tar.gz
+        # I server GitHub hanno già l'SDK perfetto pre-installato.
+        # Creiamo solo un collegamento simbolico per aiutare Buildozer a trovare gli strumenti.
+        sudo ln -s $ANDROID_HOME/cmdline-tools/latest $ANDROID_HOME/tools
 
     - name: Generate buildozer.spec and Build
       run: |
@@ -50,21 +50,23 @@ jobs:
         source.include_exts = py,png,jpg,kv,atlas
         version = 0.1
         
-        requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0,pillow
+        requirements = python3,kivy==2.3.0,pillow
         
         orientation = portrait
         fullscreen = 0
+        
+        # Diciamo a Buildozer di usare l'SDK di sistema invece di scaricarne uno rotto
+        android.sdk_path = /usr/local/lib/android/sdk
         android.accept_sdk_license = True
         android.api = 33
         android.min_api = 21
-        android.build_tools_version = 33.0.2
         
         [buildozer]
         log_level = 2
         warn_on_root = 1
         EOF
 
-        # Avvia la compilazione
+        # Via alla compilazione pulita!
         buildozer -v android debug
 
     - name: Upload APK Artifact
