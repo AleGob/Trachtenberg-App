@@ -10,7 +10,7 @@ import quadrati
 import divisioni
 import radici # <-- Ultimo modulo importato!
 
-Window.size = (400, 700)
+Window.fullscreen = 'auto'
 
 class MenuScreen(Screen):
     pass
