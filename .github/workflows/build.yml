@@ -28,7 +28,8 @@ jobs:
     - name: Install Buildozer & Cython
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install "cython<3.0.0" buildozer
+        # IL FIX: Installiamo Cython 3, compatibile con la nuova architettura C
+        python3 -m pip install "cython>=3.0.0" buildozer
 
     - name: Generate buildozer.spec
       run: |
@@ -41,7 +42,7 @@ jobs:
         source.include_exts = py,png,jpg,kv,atlas
         version = 0.1
         
-        requirements = python3,kivy==2.3.0,pillow
+        requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0,pillow
         
         orientation = portrait
         fullscreen = 0
@@ -57,13 +58,8 @@ jobs:
     - name: THE NUKE (Bypass GNU Server Crash)
       run: |
         export PATH=$HOME/.local/bin:$PATH
-        # 1. Avviamo buildozer a vuoto per forzargli a creare la cartella sorgente
         buildozer android p4a -- --help || true
-        
-        # 2. Hackeriamo il codice di Buildozer rimpiazzando l'URL rotto con uno stabile (SourceForge)
         find .buildozer/android/platform/python-for-android -type f -name "__init__.py" -exec sed -i 's|https://download.savannah.gnu.org/releases/freetype/freetype-{version}.tar.gz|https://downloads.sourceforge.net/project/freetype/freetype2/{version}/freetype-{version}.tar.gz|g' {} +
-        
-        # 3. Scarichiamo fisicamente il file mettendolo ESATTAMENTE nella cartella di build temporanea
         mkdir -p .buildozer/android/platform/build-arm64-v8a_armeabi-v7a/packages/freetype
         wget -qO .buildozer/android/platform/build-arm64-v8a_armeabi-v7a/packages/freetype/freetype-2.14.1.tar.gz https://downloads.sourceforge.net/project/freetype/freetype2/2.14.1/freetype-2.14.1.tar.gz
 
